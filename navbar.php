@@ -20,6 +20,7 @@
 
 	        <h1 class="display-4">Fit Friends</h1>
 	        <p class="lead">Schedule your workout with friends</p>
+	        <a class="search_friends" href="search.php?friends=true&search_results=">View Friend's Workouts</a>
 	      </div>
 	    </div>
 

@@ -1,29 +1,74 @@
 <?php 
 	session_start();
 	if(isset($_GET["work_id"]) && !empty($_GET["work_id"])){
+		$limit = 5;  // Number of entries to show in a page. 
+    	// Look for a GET variable page if not found default is 1.      
+    	if (isset($_GET["page"])) {  
+   			$pn  = $_GET["page"];  
+    	}  
+    	else {  
+      		$pn=1;  
+    	};
+    	$start_from = ($pn-1) * $limit;
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 		$work = true;
-		$sql = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . ";";
+		$sql = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . " LIMIT $start_from, $limit;";
+		$sqlC = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . ";";
 		$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
 		$result = $mysqli->query($sql);
+		$resultC = $mysqli->query($sqlC);
 		$resultShared = $mysqli->query($sqlShared);
+		$rowF = $resultC->num_rows;
+		echo $rowF;
+		$total_records = $rowF; 
 		$row = $result->fetch_assoc();
 		mysqli_data_seek($result, 0);
 		if(!$row){
 			$error = "No results found";
-		}
+		}  
 	}
 	else if(!isset($_GET['search_by']) && empty($_GET['search_by'])){
-		if(isset($_GET["search_results"]) && !empty($_GET["search_results"])){
+		$limit = 5;  // Number of entries to show in a page. 
+    	// Look for a GET variable page if not found default is 1.      
+    	if (isset($_GET["page"])) {  
+   			$pn  = $_GET["page"];  
+    	}  
+    	else {  
+      		$pn=1;  
+    	};
+    	$start_from = ($pn-1) * $limit;
+    	if(isset($_GET['friends']) && !empty($_GET['friends'])){
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$work = true;
-			$title = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%';";
+			$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.user_id IN ( SELECT friend_user FROM friends WHERE current = " . $_SESSION['user_id'] . ")LIMIT $start_from, $limit;";
+			$titleCount = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.user_id IN ( SELECT friend_user FROM friends WHERE current = " . $_SESSION['user_id'] . ");";
+			$result = $mysqli->query($title);
+			$resultC = $mysqli->query($titleCount);
+			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
+			$resultShared = $mysqli->query($sqlShared);
+			$rowF = $resultC->num_rows;
+			$total_records = $rowF; 
+			$row = $result->fetch_assoc();
+			mysqli_data_seek($result, 0);
+			if(!$row){
+				$error = "No results found";
+			}
+		}
+		else if(isset($_GET["search_results"]) && !empty($_GET["search_results"])){
+			require 'config/config.php';
+			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+			$work = true;
+			$title = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%' LIMIT $start_from, $limit;";
+			$titleC = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%';";
 			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
 			$resultShared = $mysqli->query($sqlShared);
 			$result = $mysqli->query($title);
+			$resultC = $mysqli->query($title);
+			$rowF = $resultC->num_rows;
+			$total_records = $rowF; 
 			$row = $result->fetch_assoc();
 			mysqli_data_seek($result, 0);
 			if(!$row){
@@ -34,10 +79,14 @@
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$work = true;
-			$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id;";
+			$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id LIMIT $start_from, $limit;";
+			$titleCount = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id;";
 			$result = $mysqli->query($title);
+			$resultC = $mysqli->query($titleCount);
 			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
 			$resultShared = $mysqli->query($sqlShared);
+			$rowF = $resultC->num_rows;
+			$total_records = $rowF; 
 			$row = $result->fetch_assoc();
 			mysqli_data_seek($result, 0);
 			if(!$row){
@@ -46,13 +95,26 @@
 		}
 	}
 	else{
+		$limit = 25;  // Number of entries to show in a page. 
+    	// Look for a GET variable page if not found default is 1.      
+    	if (isset($_GET["page"])) {  
+   			$pn  = $_GET["page"];  
+    	}  
+    	else {  
+      		$pn=1;  
+    	};
+    	$start_from = ($pn-1) * $limit;
 		if(isset($_GET["search_results"]) && !empty($_GET["search_results"])){
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$work = true;
-			$title = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%';";
+			$title = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' ;";
+			$titleC = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' LIMIT $start_from, $limit;";
 
 			$result = $mysqli->query($title);
+			$resultC = $mysqli->query($titleC);
+			$rowF = $resultC->num_rows;
+			$total_records = $rowF; 
 			$row = $result->fetch_assoc();
 			mysqli_data_seek($result, 0);
 			if(!$row){
@@ -64,7 +126,11 @@
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$work = true;
 			$sql = "SELECT * FROM users;";
+			$titleC = "SELECT * FROM users LIMIT $start_from, $limit;";
 			$result = $mysqli->query($sql);
+			$resultC = $mysqli->query($titleC);
+			$rowF = $resultC->num_rows;
+			$total_records = $rowF; 
 			$row = $result->fetch_assoc();
 			mysqli_data_seek($result, 0);
 			if(!$row){
@@ -72,6 +138,7 @@
 			}
 		}
 	}
+
 	$session_id = $_SESSION["user_id"];
 ?>
 <!DOCTYPE html>
@@ -103,7 +170,7 @@
 									<?php echo $row['workout']; ?>
 								</span>)
 								<span class="work_username">
-									<?php echo $row['username']; ?>
+									<a class="link_username" href="profile.php?user_id=<?php echo $row['user_id'];?>"><?php echo $row['username']; ?></a>
 								</span>
 							</p>
 							<p class="work_desc">
@@ -157,6 +224,27 @@
 				</div>
 			</div>
 		<?php endif; ?>
+		<div class="pagination">
+			<ul class="pagination "> 
+			      <?php   
+			        // Number of pages required. 
+			        $total_pages = ceil($total_records / $limit);   
+			       
+			        $pagLink = "";                         
+			        for ($i=1; $i<=$total_pages; $i++) { 
+			          if ($i==$pn) { 
+			              $pagLink .= "<li class='active page_numbers'><a class='page_number_t active' href='search.php?page="
+			                                                .$i."&search_results=" . $_GET['search_results'] . "'>".$i."</a></li>"; 
+			          }             
+			          else  { 
+			              $pagLink .= "<li class='page_numbers'><a class='page_number_t' href='search.php?page="
+			                                                .$i."&search_results=" . $_GET['search_results'] . "'>".$i."</a></li>";   
+			          } 
+			        };   
+			        echo $pagLink;   
+			      ?> 
+			    </ul> 
+			  </div>
 	</div>
 	<script type="text/javascript">
 		
