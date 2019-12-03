@@ -1,0 +1,1 @@
+<a href="add_work.php" class="add_button"><i class="fa fa-plus-circle fa-3x" aria-hidden="true"></i></a>

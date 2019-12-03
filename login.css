@@ -1,0 +1,397 @@
+body{
+	margin: 0px;
+	margin-bottom: 100px;
+
+}
+nav{
+	min-width: 400px !important;
+}
+@media all and (max-width: 400px){
+	.navin{
+		width: 35%;
+	}
+}
+@media all and (max-width: 400px){
+	.user_info{
+		font-size: 0.7em;
+	}
+}
+
+@media all and (max-width: 350px) {
+	.user_i{
+		margin-right: 50px;
+	}
+  body{
+    width:350px;
+  }
+  .nav{
+  	min-width: 350px;
+  }
+  .user_i{
+  	float:;
+  }
+}
+.logo{
+	margin-right: 10px;
+}
+.full_name{
+	margin-top: 2px;
+}
+.fa{
+	color: #326273;
+}
+.user_info{
+	text-align: center;
+	flex-grow: 1;
+	padding: 5px;
+}
+.user_s_name{
+	margin-bottom: 0px;
+}
+.row_user{
+	justify-content: center;
+}
+.round {
+  position: relative;
+}
+.user_search{
+	color: white;
+}
+.container_users{
+	display: flex;
+	flex-grow: 1;
+	justify-content: center;
+}
+.checkbox{
+	border-radius: 15px;
+}
+
+.round label {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 28px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 28px;
+}
+
+.round label:after {
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+  content: "";
+  height: 6px;
+  left: 7px;
+  opacity: 0;
+  position: absolute;
+  top: 8px;
+  transform: rotate(-45deg);
+  width: 12px;
+}
+
+.round input[type="checkbox"] {
+  visibility: hidden;
+}
+
+.round input[type="checkbox"]:checked + label {
+  background-color: #66bb6a;
+  border-color: #66bb6a;
+}
+
+.round input[type="checkbox"]:checked + label:after {
+  opacity: 1;
+}
+.fa:hover{
+	color: #2B5463;
+}
+.sign_out{
+	text-align: center;
+	margin-bottom: 20px;
+}
+.sign_out_text{
+	color: #326273;
+}
+.sign_out_text:hover{
+	padding: 5px;
+	background-color: #326273;
+	color: white;
+	border-radius: 10px;
+}
+.user_i{
+	position: absolute;
+	right: 10px;
+	display: flex;
+	flex-direction: flex-end;
+	
+	float: right;
+}
+.user_name{
+	margin-top: 5px;
+	padding-top: 10px;
+	text-align: center;
+}
+.trash{
+	margin-left: 5px;
+}
+.add_w{
+	float: right;
+	color: #2B5463;
+}
+.search_error{
+	text-align: center;
+	font-size: 20px;
+}
+.work_name{
+	text-shadow: 1px 1px black;
+	color: #DEDEED;
+}
+.work_username{
+	float: right;
+}
+.col-work{
+	font-size: 20px;
+	text-align: center;
+	margin: 5px;
+	border-radius: 10px;
+	box-shadow: 2px 5px 8px #888888;
+	padding: 25px;
+	
+}
+.workout_info{
+	border-radius: 10px;
+	box-shadow: 2px 5px 8px #888888;
+	margin: 5px;
+	background-color: #DEDEED;
+	color: #326273;
+}
+.weight{
+	background-image: url("img/weight.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.biking{
+	background-image: url("img/biking.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.other{
+	background-image: url("img/other.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.dancing{
+	background-image: url("img/dance.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.hyoga{
+	background-image: url("img/hyoga.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.class{
+	background-image: url("img/class.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.sports{
+	background-image: url("img/sports.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.hiking{
+	background-image: url("img/hiking.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.hiit{
+	background-image: url("img/hiit.png");
+	background-size: cover;
+	background-position: center;
+}
+.col-work:hover{
+	opacity: 70%;
+}
+.swimming{
+	background-image: url("img/swimming.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.pilates{
+	background-image: url("img/pilates.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.cardio{
+	background-image: url("img/cardio.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.yogaS{
+	background-image: url("img/ys.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.running{
+	background-image: url("img/run.jpg");
+	background-size: cover;
+	background-position: center;
+}
+.home-link:hover{
+	color: #DEDEED;
+}
+.add_button{
+	color: #326273;
+	 position: fixed;
+  	right: 5px;
+  	bottom: 5px;
+  	z-index:1000;
+}
+.main_body{
+	position: relative;
+	top: 25px;
+}
+.add_botton:hover{
+	color: #2B5463;
+}
+.fa-circle-plus{
+	width: 20px;
+	height: 20px;
+}
+h2 {
+ 
+}
+.fa-circle-plus:hover{
+	color: #2B5463;
+}
+.jumbotron{
+    background-image: url("img/gym.jpg");
+    background-size: cover;
+    text-align: center;
+    background-position: center;
+    color: white;
+    position: relative;
+    top: 40px;
+}
+.text-success{
+	width: 100%;
+	text-align: center;
+}
+.nav{
+
+	display: flex;
+	width: 100%;
+	position: fixed;
+	z-index:1000;
+	height: 40px;
+	padding: 5px;
+	background-color: #E2B1B1;
+}
+.about{
+	color: white;
+	margin-right: 15px;
+}
+.about:hover{
+	color: #DEDEED;
+}
+#about-p{
+	border-radius: 15px;
+}
+.form{
+	display: flex;
+	flex-wrap: wrap;
+	margin: auto;
+	justify-content: center;
+	width: 50%;
+}
+.about-box{
+	width: 80%;
+	box-shadow: 2px 5px 8px #888888;
+	margin-right: auto;
+	margin-left: auto;
+	text-align: center;
+	border-radius: 15px;
+	background-color: #DEDEED;
+	margin-bottom: 20px;
+}
+.who{
+	background-color: #DEDEED;
+}
+#about-p{
+	padding: 15px;
+	border-radius: 10px;
+}
+.danger{
+	border-color: red;
+}
+#about-who{
+	padding: 15px;
+	border-radius: 10px;
+}
+.error{
+	margin-left: 12px;
+	color: red;
+	font-size: 12px;
+}
+#add-button{
+	position: fixed;
+}
+.description{
+	height: 100px;
+}
+#workout_form{
+	margin-top: 15px;
+	padding: 10px;
+	background-color: #C2EFEB;
+	box-shadow: 2px 5px 8px #888888;
+	color: #326273;
+	border-radius: 10px;
+}
+.navin{
+	border-radius: 5px;
+	border-color: white;
+}
+.con{
+	display: flex;
+	flex-wrap: wrap;
+	margin: auto;
+	justify-content: center;
+	margin-bottom: 40px;
+}
+.row{
+	width: 100%;
+	margin-left: 0px;
+}
+.row-work{
+	margin-bottom: 10px;
+	width: 100%;
+}
+.form_header{
+	width: 100%;
+}
+#log{
+	text-align: center;
+}
+.form-control{
+	box-shadow: 2px 5px 8px #888888;
+}
+#sub{
+	margin-top: 10px;
+	background-color: #E2B1B1;
+	border: solid #E2B1B1 2px;
+	color: white;
+	padding: 5px;
+	border-radius: 5px;
+	box-shadow: 2px 5px 8px #888888;
+}
+#sub:hover{
+	background-color: #D6A7A7;
+	border: solid #D6A7A7 2px;
+	color: white;
+}
+#create_l{
+	color: #D6A7A7;
+}
