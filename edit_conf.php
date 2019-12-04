@@ -1,5 +1,8 @@
 <?php
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	if(isset($_SESSION["work_add"]) && !$_SESSION["work_add"]){
 		if(!isset($_POST['title']) || empty($_POST['title'])
 		|| !isset($_POST['location']) || empty($_POST['location']) || 

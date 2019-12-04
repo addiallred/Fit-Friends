@@ -1,5 +1,8 @@
 <?php
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	if(!isset($_SESSION["user_id"]) || empty($_SESSION["user_id"])){
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

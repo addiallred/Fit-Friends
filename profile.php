@@ -1,5 +1,8 @@
 <?php
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	if(isset($_GET['user_id']) && !empty($_GET['user_id'])){
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -75,7 +78,7 @@
 									<?php echo $row['workout']; ?>
 								</span>)
 								<span class="work_username">
-									<?php echo $row['username']; ?>
+									<a class="link_username" href="profile.php?user_id=<?php echo $row['user_id'];?>"><?php echo $row['username']; ?></a>
 								</span>
 							</p>
 							<p class="work_desc">

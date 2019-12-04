@@ -1,5 +1,8 @@
 <?php 
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	if(isset($_GET["work_id"]) && !empty($_GET["work_id"])){
 		$limit = 5;  // Number of entries to show in a page. 
     	// Look for a GET variable page if not found default is 1.      
@@ -21,7 +24,6 @@
 		$resultC = $mysqli->query($sqlC);
 		$resultShared = $mysqli->query($sqlShared);
 		$rowF = $resultC->num_rows;
-		echo $rowF;
 		$total_records = $rowF; 
 		$row = $result->fetch_assoc();
 		mysqli_data_seek($result, 0);
@@ -58,6 +60,7 @@
 			}
 		}
 		else if(isset($_GET["search_results"]) && !empty($_GET["search_results"])){
+
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$work = true;
@@ -66,7 +69,7 @@
 			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
 			$resultShared = $mysqli->query($sqlShared);
 			$result = $mysqli->query($title);
-			$resultC = $mysqli->query($title);
+			$resultC = $mysqli->query($titleC);
 			$rowF = $resultC->num_rows;
 			$total_records = $rowF; 
 			$row = $result->fetch_assoc();
@@ -138,7 +141,15 @@
 			}
 		}
 	}
-
+	if(!isset($_GET['search_results'])){
+		$_GET['search_results'] = "";
+	}
+	if(!isset($_GET['friends'])){
+		$_GET['friends'] = "";
+	}
+	if(!isset($_GET['work_id'])){
+		$_GET['work_id'] = "";
+	}
 	$session_id = $_SESSION["user_id"];
 ?>
 <!DOCTYPE html>
@@ -234,11 +245,13 @@
 			        for ($i=1; $i<=$total_pages; $i++) { 
 			          if ($i==$pn) { 
 			              $pagLink .= "<li class='active page_numbers'><a class='page_number_t active' href='search.php?page="
-			                                                .$i."&search_results=" . $_GET['search_results'] . "'>".$i."</a></li>"; 
+			                                                .$i."&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] . "&work_id=" . $_GET['work_id'] . "
+			                                                '>".$i."</a></li>"; 
 			          }             
 			          else  { 
 			              $pagLink .= "<li class='page_numbers'><a class='page_number_t' href='search.php?page="
-			                                                .$i."&search_results=" . $_GET['search_results'] . "'>".$i."</a></li>";   
+			                                                .$i."&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] ."&work_id=" . $_GET['work_id'] . "
+			                                                '>".$i."</a></li>";    
 			          } 
 			        };   
 			        echo $pagLink;   

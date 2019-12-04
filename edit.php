@@ -1,11 +1,12 @@
 <?php
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	require 'config/config.php';
 	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	$sql = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.exercise_id=" . $_GET["exercise_id"] . ";";
 	$results = $mysqli->query($sql);
-
-	
 	if(!$results){
 		echo $mysqli->error;
 		exit();

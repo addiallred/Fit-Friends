@@ -283,13 +283,16 @@ nav{
 	text-decoration: none;
 	color: #DEDEED;
 }
-.page_number_t{
-	color: #DEDEED;
-}
 .page_number_t:hover{
 	color: #DEDEED;
 }
+.page_number_t{
+	color: #DEDEED;
+}
 
+.active:hover{
+	color: #326273;
+}
 .page_numbers{
 	background-color: #326273;
 	margin: 5px;
@@ -302,6 +305,9 @@ nav{
 .active{
 	color: #326273;
 	background-color: #DEDEED;
+}
+.active:hover{
+	color: #326273;
 }
 .fa-circle-plus:hover{
 	color: #2B5463;

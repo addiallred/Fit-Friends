@@ -1,5 +1,8 @@
 <?php
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
 		|| !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 			$error = "Could not add workout to your workout schedule.";

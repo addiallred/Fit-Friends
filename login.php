@@ -92,9 +92,18 @@
 			if(inputUser.value.length == 0 || inputPassword.value.length == 0){
 				event.preventDefault();
 				document.querySelector(".error").innerHTML = "Fill out username and password";
-				inputUser.classList.add("danger");
-				inputPassword.classList.add("danger");
-				
+				if(inputUser.value.length == 0){
+					inputUser.classList.add("danger");
+				}
+				else{
+					inputUser.classList.remove("danger");
+				}
+				if(inputPassword.value.length == 0){
+					inputPassword.classList.add("danger");
+				}
+				else{
+					inputPassword.classList.remove("danger");
+				}
 			}else{
 				inputUser.classList.remove("danger");
 				inputPassword.classList.remove("danger");

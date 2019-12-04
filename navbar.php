@@ -5,6 +5,8 @@
 				<form action="search.php" method="GET">
 					<input type="text" class="navin" name="search_results">
 					<input class="checkbox" type="checkbox" value="users" name="search_by">  <span class="user_search"> Users </span>
+					<input type="hidden" name="friends"/>
+					<input type="hidden" name="work_id"/>
 				</form>
 				
 				<div class="user_i">

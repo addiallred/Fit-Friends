@@ -1,5 +1,8 @@
 <?php
 	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+		header("Location: login.php");
+	}
 	if(!isset($_GET['user_id']) || empty($_GET['user_id'])){
 			$error = "Could not add user as friend.";
 		}
