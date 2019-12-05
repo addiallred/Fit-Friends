@@ -1,23 +1,38 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(!isset($_GET['user_id']) || empty($_GET['user_id'])){
+	else if(!isset($_GET['user_id']) || empty($_GET['user_id'])){
 			$error = "Could not remove user from friends.";
+	}
+	else{
+		require 'config/config.php';
+		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
 		}
 		else{
-			require 'config/config.php';
-			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$sql = "DELETE FROM friends WHERE  current = " . $_SESSION['user_id'] . " AND friend_user = " . $_GET['user_id'] . ";";
 			$result = $mysqli->query($sql);
-			$name = "SELECT * FROM users WHERE user_id = " . $_GET['user_id'] . ";";
-			$nameR = $mysqli->query($name);
 			if(!$result){
-				$error = $mysqli->connect_errno;	
+				$error = "Couldn't remove friend";	
 			}
-			$row = $nameR->fetch_assoc();
-		}
+			else{
+				$name = "SELECT * FROM users WHERE user_id = " . $_GET['user_id'] . ";";
+				$nameR = $mysqli->query($name);
+				if(!$nameR){
+					$error = "Couldn't load unfriended user data";
+				}
+				else{
+					$row = $nameR->fetch_assoc();
+				}
+			}
+		}	
+		$mysqli->close();
+	}
 	
 ?>
 <!DOCTYPE html>

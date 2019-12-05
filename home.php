@@ -1,20 +1,35 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(!isset($_SESSION["user_id"]) || empty($_SESSION["user_id"])){
+	else if(!isset($_SESSION["user_id"]) || empty($_SESSION["user_id"])){
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$sql = "SELECT user_id FROM users WHERE username = '" . $_SESSION["username"] . "';";
-		$result = $mysqli->query($sql);
-		$row = $result->fetch_assoc();
-		if($row){
-			$_SESSION["user_id"] = $row["user_id"];
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
 		}
 		else{
-			$invalid = true;
+			$sql = "SELECT user_id FROM users WHERE username = '" . $_SESSION["username"] . "';";
+			$result = $mysqli->query($sql);
+			if(!$result){
+				$error = "Could not load profile information";
+				header("Location: login.php");
+			}
+			else{
+				$row = $result->fetch_assoc();
+				if($row){
+					$_SESSION["user_id"] = $row["user_id"];
+				}
+				else{
+					$invalid = true;
+				}
+			}
 		}
+		
+		$mysqli->close();
 	}
 ?>
 

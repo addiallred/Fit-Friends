@@ -1,9 +1,9 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(isset($_SESSION["work_add"]) && !$_SESSION["work_add"]){
+	else if(isset($_SESSION["work_add"]) && !$_SESSION["work_add"]){
 		if(!isset($_POST['title']) || empty($_POST['title'])
 		|| !isset($_POST['location']) || empty($_POST['location']) || 
 		!isset($_POST['description']) || empty($_POST['description'])
@@ -15,13 +15,22 @@
 		else{
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$sql = "UPDATE excercise SET title = '" . $_POST['title'] . "', description = '" . $_POST['description'] . "', date = '" . $_POST['date'] . "', location = '" . $_POST['location'] . "', workout_id = " . $_POST['workout_id'] . " WHERE exercise_id = " . $_POST["excercise_id"] . ";";
-			$result = $mysqli->query($sql);
-			if(!$result){
-				$error = $mysqli->connect_errno;
-				echo $error;
+			if ( $mysqli->errno ) {
+				$error = "Failed to connect to the database";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
 			}
-			$_SESSION["work_add"] = true;
+			else{
+				echo $_POST['description'];
+				$sql = "UPDATE excercise SET title = '" . $_POST['title'] . "', description = '" . $_POST['description'] . "', date = '" . $_POST['date'] . "', location = '" . $_POST['location'] . "', workout_id = " . $_POST['workout_id'] . " WHERE exercise_id = " . $_POST["excercise_id"] . ";";
+				$result = $mysqli->query($sql);
+				if(!$result){
+					$error = "Couldn't update workout";
+				}else{
+					$_SESSION["work_add"] = true;
+				}
+			}
+			$mysqli->close();
 		}
 	}
 ?>

@@ -1,9 +1,10 @@
 <?php 
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	$rowF = 0;
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(isset($_GET["work_id"]) && !empty($_GET["work_id"])){
+	else if(isset($_GET["work_id"]) && !empty($_GET["work_id"])){
 		$limit = 5;  // Number of entries to show in a page. 
     	// Look for a GET variable page if not found default is 1.      
     	if (isset($_GET["page"])) {  
@@ -15,21 +16,33 @@
     	$start_from = ($pn-1) * $limit;
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-		$work = true;
-		$sql = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . " LIMIT $start_from, $limit;";
-		$sqlC = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . ";";
-		$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
-		$result = $mysqli->query($sql);
-		$resultC = $mysqli->query($sqlC);
-		$resultShared = $mysqli->query($sqlShared);
-		$rowF = $resultC->num_rows;
-		$total_records = $rowF; 
-		$row = $result->fetch_assoc();
-		mysqli_data_seek($result, 0);
-		if(!$row){
-			$error = "No results found";
-		}  
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
+		}
+		else{
+			$work = true;
+			$sql = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . " LIMIT $start_from, $limit;";
+			$sqlC = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.workout_id=" . $_GET["work_id"] . ";";
+			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
+			$result = $mysqli->query($sql);
+			$resultC = $mysqli->query($sqlC);
+			$resultShared = $mysqli->query($sqlShared);
+			if(!$result || !$resultC || !$resultShared){
+				$error = "Couldn't correctly execute search";
+			}
+			else{
+				$rowF = $resultC->num_rows;
+				$total_records = $rowF; 
+				$row = $result->fetch_assoc();
+				mysqli_data_seek($result, 0);
+				if(!$row){
+					$error = "No results found";
+				}  
+			}
+		}
+		$mysqli->close();
 	}
 	else if(!isset($_GET['search_by']) && empty($_GET['search_by'])){
 		$limit = 5;  // Number of entries to show in a page. 
@@ -44,57 +57,96 @@
     	if(isset($_GET['friends']) && !empty($_GET['friends'])){
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$work = true;
-			$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.user_id IN ( SELECT friend_user FROM friends WHERE current = " . $_SESSION['user_id'] . ")LIMIT $start_from, $limit;";
-			$titleCount = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.user_id IN ( SELECT friend_user FROM friends WHERE current = " . $_SESSION['user_id'] . ");";
-			$result = $mysqli->query($title);
-			$resultC = $mysqli->query($titleCount);
-			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
-			$resultShared = $mysqli->query($sqlShared);
-			$rowF = $resultC->num_rows;
-			$total_records = $rowF; 
-			$row = $result->fetch_assoc();
-			mysqli_data_seek($result, 0);
-			if(!$row){
-				$error = "No results found";
+			if ( $mysqli->errno ) {
+				$error = "Failed to connect to the database";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
 			}
+			else{
+				$work = true;
+				$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.user_id IN ( SELECT friend_user FROM friends WHERE current = " . $_SESSION['user_id'] . ")LIMIT $start_from, $limit;";
+				$titleCount = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.user_id IN ( SELECT friend_user FROM friends WHERE current = " . $_SESSION['user_id'] . ");";
+				$result = $mysqli->query($title);
+				$resultC = $mysqli->query($titleCount);
+				$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
+				$resultShared = $mysqli->query($sqlShared);
+				if(!$result || !$resultC || !$resultShared){
+					$error = "Couldn't correctly execute search";
+				}
+				else{
+					$rowF = $resultC->num_rows;
+					$total_records = $rowF; 
+					$row = $result->fetch_assoc();
+					mysqli_data_seek($result, 0);
+					if(!$row){
+						$error = "No results found";
+					}
+				}
+			}
+			$mysqli->close();
 		}
 		else if(isset($_GET["search_results"]) && !empty($_GET["search_results"])){
 
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$work = true;
-			$title = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%' LIMIT $start_from, $limit;";
-			$titleC = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%';";
-			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
-			$resultShared = $mysqli->query($sqlShared);
-			$result = $mysqli->query($title);
-			$resultC = $mysqli->query($titleC);
-			$rowF = $resultC->num_rows;
-			$total_records = $rowF; 
-			$row = $result->fetch_assoc();
-			mysqli_data_seek($result, 0);
-			if(!$row){
-				$error = "No results found";
+			if ( $mysqli->errno ) {
+				$error = "Failed to connect to the database";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
 			}
+			else{
+				$work = true;
+				$title = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%' LIMIT $start_from, $limit;";
+				$titleC = "SELECT excercise.user_id, excercise.exercise_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id WHERE excercise.title LIKE '%" . $_GET["search_results"] . "%' OR excercise.description LIKE'%" . $_GET["search_results"] ."%' OR excercise.location LIKE '%" . $_GET["search_results"] . "%' OR workouts.title LIKE '%" . $_GET["search_results"] . "%';";
+				$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
+				$resultShared = $mysqli->query($sqlShared);
+				$result = $mysqli->query($title);
+				$resultC = $mysqli->query($titleC);
+				if(!$result || !$resultC || !$resultShared){
+					$error = "Couldn't correctly execute search";
+				}
+				else{
+					$rowF = $resultC->num_rows;
+					$total_records = $rowF; 
+					$row = $result->fetch_assoc();
+					mysqli_data_seek($result, 0);
+					if(!$row){
+						$error = "No results found";
+					}
+				}
+			}
+			$mysqli->close();
 		}
 		else{
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$work = true;
-			$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id LIMIT $start_from, $limit;";
-			$titleCount = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id;";
-			$result = $mysqli->query($title);
-			$resultC = $mysqli->query($titleCount);
-			$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
-			$resultShared = $mysqli->query($sqlShared);
-			$rowF = $resultC->num_rows;
-			$total_records = $rowF; 
-			$row = $result->fetch_assoc();
-			mysqli_data_seek($result, 0);
-			if(!$row){
-				$error = "No results found";
+			if ( $mysqli->errno ) {
+				$error = "Failed to connect to the database";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
 			}
+			else{
+				$work = true;
+				$title = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id LIMIT $start_from, $limit;";
+				$titleCount = "SELECT excercise.exercise_id, excercise.user_id, excercise.workout_id, excercise.title AS title, excercise.description AS description, excercise.date AS date, excercise.location AS location, workouts.title AS workout, users.username AS username FROM excercise JOIN users ON excercise.user_id = users.user_id JOIN workouts ON excercise.workout_id = workouts.workout_id;";
+				$result = $mysqli->query($title);
+				$resultC = $mysqli->query($titleCount);
+				$sqlShared = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'];
+				$resultShared = $mysqli->query($sqlShared);
+				if(!$result || !$resultC || !$resultShared){
+					$error = "Couldn't correctly execute search";
+				}
+				else{
+					$rowF = $resultC->num_rows;
+					$total_records = $rowF; 
+					$row = $result->fetch_assoc();
+					mysqli_data_seek($result, 0);
+					if(!$row){
+						$error = "No results found";
+					}
+				}
+			}
+			$mysqli->close();
 		}
 	}
 	else{
@@ -110,35 +162,62 @@
 		if(isset($_GET["search_results"]) && !empty($_GET["search_results"])){
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$work = true;
-			$title = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' ;";
-			$titleC = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' LIMIT $start_from, $limit;";
-
-			$result = $mysqli->query($title);
-			$resultC = $mysqli->query($titleC);
-			$rowF = $resultC->num_rows;
-			$total_records = $rowF; 
-			$row = $result->fetch_assoc();
-			mysqli_data_seek($result, 0);
-			if(!$row){
-				$error = "No results found";
+			if ( $mysqli->errno ) {
+				$error = "Failed to connect to the database";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
 			}
+			else{
+				$work = true;
+				$title = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' ;";
+				$titleC = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' LIMIT $start_from, $limit;";
+
+				$result = $mysqli->query($title);
+				$resultC = $mysqli->query($titleC);
+				if(!$result || !$resultC){
+					$error = "Couldn't correctly execute search";
+				}
+				else{
+					$rowF = $resultC->num_rows;
+					$total_records = $rowF; 
+					$row = $result->fetch_assoc();
+					mysqli_data_seek($result, 0);
+					if(!$row){
+						$error = "No results found";
+					}
+				}
+			}
+			$mysqli->close();
 		}
 		else{
 			require 'config/config.php';
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$work = true;
-			$sql = "SELECT * FROM users;";
-			$titleC = "SELECT * FROM users LIMIT $start_from, $limit;";
-			$result = $mysqli->query($sql);
-			$resultC = $mysqli->query($titleC);
-			$rowF = $resultC->num_rows;
-			$total_records = $rowF; 
-			$row = $result->fetch_assoc();
-			mysqli_data_seek($result, 0);
-			if(!$row){
-				$error = "No results found";
+			if ( $mysqli->errno ) {
+				$error = "Failed to connect to the database";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
 			}
+			else{
+				$work = true;
+				$sql = "SELECT * FROM users;";
+				$titleC = "SELECT * FROM users LIMIT $start_from, $limit;";
+				$result = $mysqli->query($sql);
+				$resultC = $mysqli->query($titleC);
+				if(!$result || !$resultC){
+					$error = "Couldn't correctly execute search";
+				}
+				else{
+					$rowF = $resultC->num_rows;
+					$total_records = $rowF; 
+
+					$row = $result->fetch_assoc();
+					mysqli_data_seek($result, 0);
+					if(!$row){
+						$error = "No results found";
+					}
+				}
+			}
+			$mysqli->close();
 		}
 	}
 	if(!isset($_GET['search_results'])){

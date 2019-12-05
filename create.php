@@ -1,37 +1,48 @@
 <?php
 	session_start();
-	if(isset($_POST["user"]) && isset($_POST["pass"])){
+	if(isset($_POST["user"]) && !empty($_POST["user"]) && !empty($_POST["pass"]) && isset($_POST["pass"])){
 
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: login.php");
+		}
 		$sql = "SELECT * FROM users WHERE username = '" . $_POST["user"] . "';";
 		$result = $mysqli->query($sql);
-		$row = $result->fetch_assoc();
-		if($row){
-			$userT = true;
+		if(!$result){
+			$error = "Failed to load profile data";
 		}
 		else{
-			$password = hash("sha256", $_POST['pass']);
-			$sqlI = "INSERT INTO users(first_name, last_name, username, password) VALUES('" 
-			. $_POST["fname"] . "', '" . $_POST["lname"] . "', '" . 
-			$_POST["user"] . "', '" . $password . "');";
-			$result = $mysqli->query($sqlI);
-			if($result){
-				$sql = "SELECT * FROM users WHERE username = '" . $_POST["user"] . "' AND password = '" . $password . "';";
-				$result = $mysqli->query($sql);
-				$row = $result->fetch_assoc();
-				session_start();
-				$_SESSION["logged_in"] = true;
-				$_SESSION["username"] = $_POST["user"];
-				$_SESSION["user_id"] = $row['user_id'];
-				header("Location: home.php");
+			$row = $result->fetch_assoc();
+			if($row){
+				$userT = true;
 			}
 			else{
-				$invalid = true;
+				$password = hash("sha256", $_POST['pass']);
+				$sqlI = "INSERT INTO users(first_name, last_name, username, password) VALUES('" 
+				. $_POST["fname"] . "', '" . $_POST["lname"] . "', '" . 
+				$_POST["user"] . "', '" . $password . "');";
+				$result = $mysqli->query($sqlI);
+				if($result){
+					$sql = "SELECT * FROM users WHERE username = '" . $_POST["user"] . "' AND password = '" . $password . "';";
+					$result = $mysqli->query($sql);
+					$row = $result->fetch_assoc();
+					session_start();
+					$_SESSION["logged_in"] = true;
+					$_SESSION["username"] = $_POST["user"];
+					$_SESSION["user_id"] = $row['user_id'];
+					header("Location: home.php");
+				}
+				else{
+					$invalid = true;
+				}
 			}
 		}
-		
+		$mysqli->close();
 	}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -86,8 +97,8 @@
 						<button type="submit" id="sub">Register</button>
 						<span class="error">
 							<?php
-								if(isset($invalid) && $invalid){
-									echo "Invalid username and/or password";
+								if(isset($invalid) && $invalid || (isset($error) && !empty($error))){
+									echo "Invalid username and/or password (failed to create account)";
 								}else if(isset($userT) && $userT){
 									echo "Username already taken";
 								}

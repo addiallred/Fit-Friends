@@ -1,26 +1,39 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
+	else if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
 		|| !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 			$error = "Could not add workout to your workout schedule.";
+	}
+	else{
+		require 'config/config.php';
+		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
 		}
 		else{
-			require 'config/config.php';
-			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-			$sql = "DELETE FROM shared_workouts WHERE excercise_id = " . $_GET["exercise_id"] . " AND user_id = " . $_SESSION['user_id'] . ";";
+			$sql = "DELETE FROM shared_workouts WHERE excercise_id = " . $_GET["exercise_id"] . " AND user_id = " . $_SESSION['user_id']. ";";
 			$result = $mysqli->query($sql);
-			
-			$titleName = "SELECT excercise.title FROM excercise WHERE excercise.exercise_id = " . $_GET['exercise_id'] . ";";
-			$titleR = $mysqli->query($titleName);
-			if(!$result || !$titleR){
-				$error = $mysqli->connect_errno;
-					
-			}
-			$row = $titleR->fetch_assoc();
+			if(!$result){
+				$error = "Couldn't remove workout from your schedule.";
+			}	
+			else{
+				$titleName = "SELECT excercise.title FROM excercise WHERE excercise.exercise_id = " . $_GET['exercise_id'] . ";";
+				$titleR = $mysqli->query($titleName);
+				if(!$titleR){
+					$error = "Couldn't load information for deleted workout";	
+				}
+				else{
+					$row = $titleR->fetch_assoc();
+				}
+			}	
 		}
+		$mysqli->close();
+	}
 	
 ?>
 <!DOCTYPE html>

@@ -1,18 +1,28 @@
 <?php
-		session_start();
-		if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
-			header("Location: login.php");
-		}
+	session_start();
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
+		header("Location: login.php");
+	}
+	else{
 		require 'config/config.php';
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$sql = "SELECT * FROM workouts;";
-		$result = $mysqli->query($sql);
-		if(!$result){
-			echo $mysqli->connect_errno;
-			exit();
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
 		}
-		$_SESSION["work_add"] = false;
-		echo $_SESSION["work_add"];
+		else{
+			$sql = "SELECT * FROM workouts;";
+			$result = $mysqli->query($sql);
+			if(!$result){
+				$error = "Couldn't load workouts to display correctly";
+				$_SESSION['error'] = $error;
+				header("Location: home.php");
+			}
+			$_SESSION["work_add"] = false;
+		}
+		$mysqli->close();
+	}
 ?>
 
 

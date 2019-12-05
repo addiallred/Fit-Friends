@@ -1,35 +1,39 @@
 <?php
 	session_start();
-	
-	if(isset($_GET["log_out"]) && $_GET["log_out"] == true){
+	if(isset($_GET["log_out"]) && ($_GET["log_out"] == true) && !empty($_GET["log_out"])){
 		session_destroy();
 	}
-	else if( isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] == true ) {
-		// Redirect user to the home page
+	else if(isset($_SESSION["logged_in"]) && !empty($_SESSION["logged_in"]) && ($_SESSION["logged_in"] == true )){
 		header("Location: home.php");
 	}
-	else if(isset($_POST["username"]) && isset($_POST["password"])){
-
-			require 'config/config.php';
-			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	else if(isset($_POST["username"]) && !empty($_POST["username"]) && isset($_POST["password"]) && !empty($_POST["password"])){
+		require 'config/config.php';
+		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+		}
+		else{
 			$passwordInput = hash("sha256", $_POST["password"]);
 			$sql = "SELECT * FROM users WHERE username = '" . $_POST["username"] . "' AND password = '" . $passwordInput . "';";
 			$result = $mysqli->query($sql);
 			if(!$result) {
-				echo $mysqli->error;
-				exit();
-			}
-			$row = $result->fetch_assoc();
-			if($row){
-				$_SESSION["logged_in"] = true;
-				$_SESSION["username"] = $_POST["username"];
-				$_SESSION["user_id"] = $row['user_id'];
-				header("Location: home.php");
+				$error = "Failed to find user";
 			}
 			else{
-				$invalid = true;
+				$row = $result->fetch_assoc();
+				if($row){
+					$_SESSION["logged_in"] = true;
+					$_SESSION["username"] = $_POST["username"];
+					$_SESSION["user_id"] = $row['user_id'];
+					header("Location: home.php");
+				}
+				else{
+					$invalid = true;
+				}
 			}
-			
+		}
+		$mysqli->close();
 		
 	}
 ?>

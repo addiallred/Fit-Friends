@@ -1,30 +1,47 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
+	else if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
 		|| !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
-			$error = "Could not add workout to your workout schedule.";
+		$error = "Could not add workout to your workout schedule.";
+	}
+	else{
+		require 'config/config.php';
+		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
 		}
 		else{
-			require 'config/config.php';
-			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$titleName = "SELECT excercise.title FROM excercise WHERE excercise.exercise_id = " . $_GET['exercise_id'] . ";";
 			$titleR = $mysqli->query($titleName);
-			$row = $titleR->fetch_assoc();
-			$sql = "DELETE FROM shared_workouts WHERE excercise_id = " . $_GET["exercise_id"] . ";";
-			$result = $mysqli->query($sql);
-			$excerD = "DELETE FROM excercise WHERE exercise_id = " . $_GET["exercise_id"] . ";";
-		
-			$resultD = $mysqli->query($excerD);
-			if(!$result || !$titleR || !$resultD){
-				$error = $mysqli->connect_errno;
-					
+			if(!$titleR){
+				$error = "Failed to find the desired excercise to delete";
+			}
+			else{
+				$row = $titleR->fetch_assoc();
+				$sql = "DELETE FROM shared_workouts WHERE excercise_id = " . $_GET["exercise_id"] . ";";
+				$result = $mysqli->query($sql);
+				if(!$result){
+					$error = "Failed to delete workout from your schedule";
+				}
+				else{
+					$excerD = "DELETE FROM excercise WHERE exercise_id = " . $_GET["exercise_id"] . ";";
+					$resultD = $mysqli->query($excerD);
+					if(!$excerD){
+						$error = "Failed to delete workout from your schedule";
+					}
+				}
+				
 			}
 			
 		}
-	
+		
+		$mysqli->close();
+	}
 ?>
 <!DOCTYPE html>
 <html>

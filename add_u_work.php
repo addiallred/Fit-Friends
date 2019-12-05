@@ -1,33 +1,49 @@
 <?php
 	session_start();
-	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"]){
+	if(!isset($_SESSION["logged_in"]) || empty($_SESSION["logged_in"]) || !$_SESSION["logged_in"] || !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
 		header("Location: login.php");
 	}
-	if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
+	else if(!isset($_GET['exercise_id']) || empty($_GET['exercise_id'])
 		|| !isset($_SESSION['user_id']) || empty($_SESSION['user_id'])){
-			$error = "Could not add workout to your workout schedule.";
+		$error = "Could not add workout to your workout schedule.";
+	}
+	else{
+		require 'config/config.php';
+		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		if ( $mysqli->errno ) {
+			$error = "Failed to connect to the database";
+			$_SESSION['error'] = $error;
+			header("Location: home.php");
 		}
 		else{
-			require 'config/config.php';
-			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 			$exist = "SELECT * FROM shared_workouts WHERE user_id = " . $_SESSION['user_id'] . " AND excercise_id = " . $_GET['exercise_id'];
 			$exR = $mysqli->query($exist);
-			$row = $exR->fetch_assoc();
-			if(!$row){
-				$sql = "INSERT INTO shared_workouts(excercise_id, user_id) VALUES(" . $_GET['exercise_id'] . ", " . $_SESSION['user_id'] . ");";
-				$result = $mysqli->query($sql);
-				$titleName = "SELECT excercise.title FROM excercise WHERE excercise.exercise_id = " . $_GET['exercise_id'] . ";";
-				$titleR = $mysqli->query($titleName);
-				if(!$result || !$titleR){
-					$error = $mysqli->connect_errno;
-					echo $error;
+			if(!$exR){
+				$error = "Couldn't retrieve desired workout to add to your schedule";
+			}else{
+				$row = $exR->fetch_assoc();
+				if(!$row){
+					$sql = "INSERT INTO shared_workouts(excercise_id, user_id) VALUES(" . $_GET['exercise_id'] . ", " . $_SESSION['user_id']. ");";
+					$result = $mysqli->query($sql);
+					if(!$result){
+						$error = "Couldn't add workout to your schedule";
+					}else{
+						$titleName = "SELECT excercise.title FROM excercise WHERE excercise.exercise_id = " . $_GET['exercise_id'] . ";";
+						$titleR = $mysqli->query($titleName);
+						if(!$titleR){
+							$error = "Couldn't fetch name of added workout";
+						}else{
+							$row = $titleR->fetch_assoc();
+						}
+					}
 				}
-				$row = $titleR->fetch_assoc();
-			}
-			else{
-				$error = "Workout already in your schedule";
+				else{
+					$error = "Workout already in your schedule";
+				}
 			}
 		}
+		$mysqli->close();
+	}
 	
 ?>
 <!DOCTYPE html>
