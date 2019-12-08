@@ -28,6 +28,7 @@
 				}
 				$_SESSION["work_add"] = true;
 			}
+			$mysqli->close();
 		}
 	}
 	if(!$_SESSION["work_add"]){

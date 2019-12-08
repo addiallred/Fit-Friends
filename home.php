@@ -46,6 +46,11 @@
 	<?php include 'navbar.php' ?>
 
 	<?php include 'work_button.php' ?>
+	<?php if ( isset($_SESSION['error']) && !empty($_SESSION['error']) ) : ?>
+			<div class="text-danger">
+				<?php echo $_SESSION['error']; ?>
+			</div>
+	<?php endif; ?>
 	<div class="main_body">
 		<div class="container">
 		  <div class="row row-work">
@@ -111,7 +116,6 @@
 				window.location.replace("search.php?work_id="+ (i+1));
 			}
 		}
-
 	</script>
 </body>
 </html>

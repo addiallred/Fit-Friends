@@ -336,6 +336,10 @@ nav{
 	width: 100%;
 	text-align: center;
 }
+.text-danger{
+	width: 100%;
+	text-align: center;
+}
 .nav{
 
 	display: flex;

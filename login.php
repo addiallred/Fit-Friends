@@ -57,6 +57,11 @@
       </div>
     </div>
     <div class="main_body">
+    	<?php if ( isset($_SESSION['error']) && !empty($_SESSION['error']) ) : ?>
+			<div class="text-danger">
+				<?php echo $_SESSION['error']; ?>
+			</div>
+		<?php endif; ?>
 		<form class="form" action="login.php" method="POST">
 			<div class="form-group row form_header">
 				<div class="col">

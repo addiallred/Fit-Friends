@@ -28,12 +28,19 @@
 				if($result){
 					$sql = "SELECT * FROM users WHERE username = '" . $_POST["user"] . "' AND password = '" . $password . "';";
 					$result = $mysqli->query($sql);
-					$row = $result->fetch_assoc();
-					session_start();
-					$_SESSION["logged_in"] = true;
-					$_SESSION["username"] = $_POST["user"];
-					$_SESSION["user_id"] = $row['user_id'];
-					header("Location: home.php");
+					if(!$result){
+						$error = "Failed to load user information of created account";
+						$_SESSION['error'] = $error;
+						header("Location: login.php");
+					}
+					else{
+						$row = $result->fetch_assoc();
+						session_start();
+						$_SESSION["logged_in"] = true;
+						$_SESSION["username"] = $_POST["user"];
+						$_SESSION["user_id"] = $row['user_id'];
+						header("Location: home.php");
+					}
 				}
 				else{
 					$invalid = true;
