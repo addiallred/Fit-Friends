@@ -169,8 +169,8 @@
 			}
 			else{
 				$work = true;
-				$title = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' ;";
-				$titleC = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' LIMIT $start_from, $limit;";
+				$titleC = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' ;";
+				$title = "SELECT * FROM users WHERE first_name LIKE '%" . $_GET['search_results'] . "%' OR username LIKE '%" . $_GET['search_results'] . "%' OR last_name LIKE '%" . $_GET['search_results'] . "%' LIMIT $start_from, $limit;";
 
 				$result = $mysqli->query($title);
 				$resultC = $mysqli->query($titleC);
@@ -181,7 +181,7 @@
 					$rowF = $resultC->num_rows;
 					$total_records = $rowF; 
 					$row = $result->fetch_assoc();
-					mysqli_data_seek($result, 0);
+					mysqli_data_seek($resultC, 0);
 					if(!$row){
 						$error = "No results found";
 					}
@@ -207,9 +207,8 @@
 					$error = "Couldn't correctly execute search";
 				}
 				else{
-					$rowF = $resultC->num_rows;
-					$total_records = $rowF; 
-
+					$rowF = $result->num_rows;
+					$total_records = $rowF;
 					$row = $result->fetch_assoc();
 					mysqli_data_seek($result, 0);
 					if(!$row){
@@ -303,7 +302,7 @@
 		<?php elseif(isset($work) && !empty($work) && isset($_GET['search_by']) && !empty($_GET['search_by'])) : ?>
 			<div class="container_users">
 				<div class="row row_user">
-				<?php while($row = $result->fetch_assoc()) : ?>
+				<?php while($row = $resultC->fetch_assoc()) : ?>
 						<div class="col-md-3 col-lg-2 col-4 workout_info user_info">
 							<a href="profile.php?user_id=<?php echo $row['user_id']; ?>"><i class="fas fa fa-user fa-2x"></i></a>
 							<p class="user_s_name full_name"><?php echo $row['first_name'] . " " . $row['last_name']; ?></p>
@@ -318,20 +317,34 @@
 			<ul class="pagination "> 
 			      <?php   
 			        // Number of pages required. 
-			        $total_pages = ceil($total_records / $limit);   
-			       
+			        $total_pages = ceil($total_records / $limit);  
 			        $pagLink = "";                         
 			        for ($i=1; $i<=$total_pages; $i++) { 
-			          if ($i==$pn) { 
-			              $pagLink .= "<li class='active page_numbers'><a class='page_number_t active' href='search.php?page="
-			                                                .$i."&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] . "&work_id=" . $_GET['work_id'] . "
+			        	if(isset($_GET['search_by']) && !empty($_GET['search_by'])){
+			        		if ($i==$pn) { 
+			              		$pagLink .= "<li class='active page_numbers'><a class='page_number_t active' href='search.php?page="
+			                                                .$i."&search_by=" . $_GET['search_by'] . "&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] . "&work_id=" . $_GET['work_id'] . "
 			                                                '>".$i."</a></li>"; 
-			          }             
-			          else  { 
-			              $pagLink .= "<li class='page_numbers'><a class='page_number_t' href='search.php?page="
-			                                                .$i."&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] ."&work_id=" . $_GET['work_id'] . "
+			          		}             
+			          		else  { 
+			              		$pagLink .= "<li class='page_numbers'><a class='page_number_t' href='search.php?page="
+			                                                .$i. "&search_by=" . $_GET['search_by'] . "&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] ."&work_id=" . $_GET['work_id'] . "
 			                                                '>".$i."</a></li>";    
-			          } 
+			          		} 
+			        	}
+			        	else{
+			        		if ($i==$pn) { 
+			              		$pagLink .= "<li class='active page_numbers'><a class='page_number_t active' href='search.php?page="
+			                                                .$i. "&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] . "&work_id=" . $_GET['work_id'] . "
+			                                                '>".$i."</a></li>"; 
+			          		}             
+			          		else  { 
+			              		$pagLink .= "<li class='page_numbers'><a class='page_number_t' href='search.php?page="
+			                                                .$i.  "&search_results=" . $_GET['search_results'] . "&friends=" . $_GET['friends'] ."&work_id=" . $_GET['work_id'] . "
+			                                                '>".$i."</a></li>";    
+			          		} 
+			        	}
+			          
 			        };   
 			        echo $pagLink;   
 			      ?> 

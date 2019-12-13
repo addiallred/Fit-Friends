@@ -107,8 +107,10 @@
 				<div class="sign_out follow"><a  href="remove_friend.php?user_id=<?php echo $_GET["user_id"];?>"><span class="sign_out_text">Unfollow</span></a></div>
 			<?php endif; ?>
 			<div class="container">
+					<?php  $one = false ?>
 					<?php while($row = $result->fetch_assoc()) : ?>
-						
+						<?php  $one = true ?>
+
 						<div class="row">
 							<div class="col workout_info">
 								<p class="work_title">
@@ -156,7 +158,11 @@
 
 
 					<?php endwhile; ?>
-					
+					<?php if(!$one) :?>
+						<div class="no-works">
+							No Workouts Scheduled Yet
+						</div>
+					<?php endif; ?>
 				</div>
 				<div class="pagination">
 						<ul class="pagination " id = "user_pagi"> 

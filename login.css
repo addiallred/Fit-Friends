@@ -16,7 +16,12 @@ nav{
 		font-size: 0.7em;
 	}
 }
-
+.no-works{
+	padding-top: 15px;
+	color: #DEDEED;
+	text-align: center;
+	width: 100%;
+}
 @media all and (max-width: 350px) {
 	.user_i{
 		margin-right: 50px;
